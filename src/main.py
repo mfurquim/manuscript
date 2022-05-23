@@ -13,24 +13,26 @@ import re
 # Random parameters
 import random
 
+
 class Writer:
     """A class used to simulate handwritten documents from text"""
+
     # Drawing parameters.
     width = 210
     height = 297
     dpi = 90
-    fontPath = './fonts/Caveat-VariableFont_wght.ttf'
+    fontPath = "./fonts/Caveat-VariableFont_wght.ttf"
     fontSize = 40
-    wordSpacing = [8,14]
-    margin = (150,200)
-    paragraphSpacing = [2,4]
+    wordSpacing = [8, 14]
+    margin = (150, 200)
+    paragraphSpacing = [2, 4]
 
     # Line tendance neg=down, pos=up
-    direction = [0,2]
+    direction = [0, 2]
 
     # This need to be taken from the command line
-    textFile = './texts/sample01.txt'
-    penColor = (0,0,77)
+    textFile = "./texts/sample01.txt"
+    penColor = (46, 52, 64)
 
     # Process page size
     pageWidth = int(dpi * width / 10)
@@ -38,21 +40,21 @@ class Writer:
 
     # Create the fonts list
     writingFonts = []
-    writingFonts.append(ImageFont.truetype(fontPath, fontSize-2, layout_engine=ImageFont.LAYOUT_RAQM))
-    writingFonts.append(ImageFont.truetype(fontPath, fontSize-1, layout_engine=ImageFont.LAYOUT_RAQM))
+    writingFonts.append(ImageFont.truetype(fontPath, fontSize - 2, layout_engine=ImageFont.LAYOUT_RAQM))
+    writingFonts.append(ImageFont.truetype(fontPath, fontSize - 1, layout_engine=ImageFont.LAYOUT_RAQM))
     writingFonts.append(ImageFont.truetype(fontPath, fontSize, layout_engine=ImageFont.LAYOUT_RAQM))
-    writingFonts.append(ImageFont.truetype(fontPath, fontSize+1, layout_engine=ImageFont.LAYOUT_RAQM))
-    writingFonts.append(ImageFont.truetype(fontPath, fontSize+2, layout_engine=ImageFont.LAYOUT_RAQM))
+    writingFonts.append(ImageFont.truetype(fontPath, fontSize + 1, layout_engine=ImageFont.LAYOUT_RAQM))
+    writingFonts.append(ImageFont.truetype(fontPath, fontSize + 2, layout_engine=ImageFont.LAYOUT_RAQM))
 
     # Create the page
-    img = Image.new("RGBA", (pageWidth,pageHeight), (255,255,255))
+    img = Image.new("RGBA", (pageWidth, pageHeight), (236, 239, 244, 0))
     draw = ImageDraw.Draw(img)
 
     # Load the text, and split by paragraphs
-    reader = open(textFile, 'r')
+    reader = open(textFile, "r")
     text = reader.read()
-    text = re.sub(r'\n\n+', '\n\n', text)
-    paragraphs = text.split('\n\n')
+    text = re.sub(r"\n\n+", "\n\n", text)
+    paragraphs = text.split("\n\n")
 
     # remember current page and position
     pageNb = 1
@@ -60,22 +62,22 @@ class Writer:
     y = margin[1]
 
     def newPage(self):
-        fileName = 'pages/page-%03d.png' % self.pageNb
+        fileName = "pages/page-%03d.png" % self.pageNb
         self.img.save(fileName)
         self.pageNb += 1
-        self.img = Image.new("RGBA", (self.pageWidth,self.pageHeight), (255,255,255))
+        self.img = Image.new("RGBA", (self.pageWidth, self.pageHeight), (236, 239, 244, 0))
         self.draw = ImageDraw.Draw(self.img)
         self.x = self.margin[0]
         self.y = self.margin[1]
 
     def newLine(self, isLastWord=False):
-        self.x = self.margin[0] + 2 * random.randint(-5,5)
+        self.x = self.margin[0] + 2 * random.randint(-5, 5)
         self.y += self.fontSize + 10 * self.direction[1]
         if not isLastWord and self.y >= (self.pageHeight - self.margin[1]):
             self.newPage()
 
     def newParagraph(self):
-        self.x = self.margin[0] + 2 * random.randint(-5,5)
+        self.x = self.margin[0] + 2 * random.randint(-5, 5)
         spcMin = 10 * self.paragraphSpacing[0]
         spcMax = 10 * self.paragraphSpacing[1]
         spacing = (random.randint(spcMin, spcMax)) / 10
@@ -85,7 +87,7 @@ class Writer:
 
     # Draw the word's characters
     def writeWord(self, word, newParagraph):
-        stroke_width = random.randrange(0,1)
+        stroke_width = random.randrange(0, 1)
         x = self.x
 
         nbFonts = len(self.writingFonts)
@@ -95,8 +97,8 @@ class Writer:
             fontIndex = random.randrange(0, nbFonts)
             font = self.writingFonts[fontIndex]
 
-            styleset = "ss0" + str(random.randrange(1,2))
-            features = [ "curs", "dlig", styleset, "smcp", "salt", "cpsp" ]
+            styleset = "ss0" + str(random.randrange(1, 2))
+            features = ["curs", "dlig", styleset, "smcp", "salt", "cpsp"]
 
             # Use swash variant for a new paragraph
             if newParagraph:
@@ -104,11 +106,10 @@ class Writer:
 
             size = self.draw.textsize(letter, font=font)
 
-            y = self.y + random.randrange(-1,1)
-            self.draw.text((x, y), letter, self.penColor, font=font,
-                           stroke_width=stroke_width, features=features)
+            y = self.y + random.randrange(-1, 1)
+            self.draw.text((x, y), letter, self.penColor, font=font, stroke_width=stroke_width, features=features)
 
-            x = x + size[0] - random.randrange(3,6)
+            x = x + size[0] - random.randrange(3, 6)
 
     # Write words
     def createDoc(self):
@@ -117,8 +118,8 @@ class Writer:
 
         for paragraph in self.paragraphs:
 
-            paragraph = re.sub(r'\s+', ' ', paragraph)
-            words = paragraph.split(' ')
+            paragraph = re.sub(r"\s+", " ", paragraph)
+            words = paragraph.split(" ")
             self.x = self.margin[0]
             nbWords = len(words)
 
@@ -128,7 +129,7 @@ class Writer:
 
                 isLastWord = idx == nbWords
 
-                font = self.writingFonts[nbFonts-1]
+                font = self.writingFonts[nbFonts - 1]
 
                 # Check with if there is enough space on the line for the word
                 size = self.draw.textsize(word, font=font)
@@ -148,9 +149,29 @@ class Writer:
             # new paragraph
             self.newParagraph()
 
+        x_max = 0
+        x_min = 9999
+        y_max = 0
+        y_min = 9999
+
+        px = self.img.load()
+        for y in range(self.pageHeight):
+            for x in range(self.pageWidth):
+                if px[x, y] != (236, 239, 244, 0):
+                    if x > x_max:
+                        x_max = x
+                    if y > y_max:
+                        y_max = y
+                    if x < x_min:
+                        x_min = x
+                    if y < y_min:
+                        y_min = y
+
+        self.img = self.img.crop((x_min, y_min, x_max, y_max))
+
         # Save last page
         self.draw = ImageDraw.Draw(self.img)
-        fileName = 'pages/page-%03d.png' % self.pageNb
+        fileName = "pages/page-%03d.png" % self.pageNb
         self.img.save(fileName)
 
 
